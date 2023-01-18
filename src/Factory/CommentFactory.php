@@ -3,9 +3,10 @@
 namespace App\Factory;
 
 use App\Entity\Comment;
-use App\Repository\CommentRepository;
-use Zenstruck\Foundry\ModelFactory;
+use App\Factory\UserFactory;
 use Zenstruck\Foundry\Proxy;
+use Zenstruck\Foundry\ModelFactory;
+use App\Repository\CommentRepository;
 use Zenstruck\Foundry\RepositoryProxy;
 
 /**
@@ -50,7 +51,7 @@ final class CommentFactory extends ModelFactory
         $datetimeImmutableObject = \DateTimeImmutable::createFromMutable($datetimeObject);
 
         return [
-            'user' => self::faker()->name(),
+            'user' => UserFactory::random(),
             'content' => self::faker()->text(250),
             'createdAt' => $datetimeImmutableObject,
             'post' => PostFactory::random()

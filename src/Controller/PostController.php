@@ -21,6 +21,7 @@ class PostController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $comment = $form->getData();
             $comment->setPost($post);
+            $comment->setUser($this->getUser());
         
             $manager->persist($comment);
             $manager->flush();

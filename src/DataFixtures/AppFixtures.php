@@ -5,6 +5,7 @@ namespace App\DataFixtures;
 use App\Entity\Post;
 use DateTimeImmutable;
 use App\Factory\PostFactory;
+use App\Factory\UserFactory;
 use App\Factory\CommentFactory;
 use App\Factory\CategoryFactory;
 use Doctrine\Persistence\ObjectManager;
@@ -33,6 +34,8 @@ class AppFixtures extends Fixture
         // $post->setCreatedAt($dateTimeImmutable);
 
         // $manager->persist($post);
+        UserFactory::new()->createMany(10);
+        UserFactory::new()->createOne(['email' => 'user@gmail.com']);
 
         CategoryFactory::new()->createMany(5);
 
