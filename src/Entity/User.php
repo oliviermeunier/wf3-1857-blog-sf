@@ -2,14 +2,18 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use DateTimeZone;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use App\Repository\UserRepository;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[UniqueEntity('email')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -18,6 +22,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
+    #[Assert\NotBlank]
     private ?string $email = null;
 
     #[ORM\Column]
@@ -30,16 +35,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $hash = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
     private ?string $firstname = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
     private ?string $lastname = null;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: Comment::class)]
     private Collection $comments;
 
+    #[ORM\Column]
+    private ?\DateTimeImmutable $createdAt = null;
+
     public function __construct()
     {
+        $this->createdAt = new \DateTimeImmutable('now', new DateTimeZone('Europe/Paris'));
         $this->comments = new ArrayCollection();
     }
 
@@ -168,6 +179,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $comment->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): self
+    {
+        $this->createdAt = $createdAt;
 
         return $this;
     }
