@@ -52,7 +52,8 @@ final class PostFactory extends ModelFactory
             'content' => self::faker()->text(2000),
             'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('-3 years', 'now', 'Europe/Paris')),
             'title' => self::faker()->sentence(),
-            'image' => 'https://picsum.photos/seed/'.rand(1,1000).'/750/300'
+            'image' => 'https://picsum.photos/seed/'.rand(1,1000).'/750/300',
+            'category' => CategoryFactory::random()
         ];
     }
 

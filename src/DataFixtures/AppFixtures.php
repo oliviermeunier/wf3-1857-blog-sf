@@ -5,6 +5,7 @@ namespace App\DataFixtures;
 use App\Entity\Post;
 use DateTimeImmutable;
 use App\Factory\PostFactory;
+use App\Factory\CategoryFactory;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 
@@ -31,6 +32,8 @@ class AppFixtures extends Fixture
         // $post->setCreatedAt($dateTimeImmutable);
 
         // $manager->persist($post);
+
+        CategoryFactory::new()->createMany(5);
 
         // Instanciation de PostFactory en appelant la méthode statique new()
         PostFactory::new()

@@ -2,6 +2,7 @@
 
 {% block body %}
 
+<span class="badge bg-secondary">{{ post.category.name }}</span>
 <h2>{{ post.title }}</h2>
 
 <p class="lead">Créé par {{ post.author }} le {{ post.createdAt|date('d/m/Y') }}</p>
