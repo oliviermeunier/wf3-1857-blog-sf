@@ -3,10 +3,11 @@
 namespace App\Factory;
 
 use App\Entity\Post;
+use Zenstruck\Foundry\Proxy;
 use App\Repository\PostRepository;
 use Zenstruck\Foundry\ModelFactory;
-use Zenstruck\Foundry\Proxy;
 use Zenstruck\Foundry\RepositoryProxy;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 /**
  * @extends ModelFactory<Post>
@@ -34,7 +35,7 @@ final class PostFactory extends ModelFactory
      *
      * @todo inject services if required
      */
-    public function __construct()
+    public function __construct(private SluggerInterface $slugger)
     {
         parent::__construct();
     }
@@ -61,8 +62,16 @@ final class PostFactory extends ModelFactory
     protected function initialize(): self
     {
         return $this
-            // ->afterInstantiate(function(Post $post): void {})
-        ;
+                ->afterInstantiate(function(Post $post) {
+                    // On récupère le titre de l'article
+                    $title = $post->getTitle();
+
+                    // On sluggifie ce titre avec le slugger
+                    $slug = $this->slugger->slug($title);
+
+                    // On enregistre ce slug dans le champ slug
+                    $post->setSlug($slug);
+                });
     }
 
     protected static function getClass(): string
