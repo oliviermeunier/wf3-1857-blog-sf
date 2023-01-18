@@ -2,13 +2,19 @@
 
 namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Form\LoginType;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
 {
+    public function __construct(
+        private FormFactoryInterface $formFactory
+    ){}
+
     #[Route(path: '/login', name: 'security.login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
@@ -16,13 +22,12 @@ class SecurityController extends AbstractController
             return $this->redirectToRoute('target_path');
         }
 
-        // get the login error if there is one
+        $lastEmail = $authenticationUtils->getLastUsername();
+        $form = $this->formFactory->createNamed('', LoginType::class, ['email' => $lastEmail]);
         $error = $authenticationUtils->getLastAuthenticationError();
-        // last username entered by the user
-        $lastUsername = $authenticationUtils->getLastUsername();
 
         return $this->render('security/login.html.twig', [
-            'last_username' => $lastUsername, 
+            'loginForm' => $form->createView(),
             'error' => $error
         ]);
     }

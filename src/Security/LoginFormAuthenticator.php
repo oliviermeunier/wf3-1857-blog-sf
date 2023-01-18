@@ -2,9 +2,11 @@
 
 namespace App\Security;
 
+use App\Form\LoginType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
@@ -26,7 +28,8 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
 
     public function __construct(
         private UrlGeneratorInterface $urlGenerator,
-        private RequestStack $request
+        private RequestStack $request,
+        private FormFactoryInterface $formFactory
     )
     {
         $this->flashbag = $this->request->getSession()->getFlashBag();
@@ -35,13 +38,19 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
 
     public function authenticate(Request $request): Passport
     {
-        $email = $request->request->get('email', '');
+        $form = $this->formFactory->createNamed('', LoginType::class);
+        $form->handleRequest($request);
+
+        $data = $form->getData();
+
+        $email = $data['email'];
+        $plainPassword = $data['plainPassword'];
 
         $request->getSession()->set(Security::LAST_USERNAME, $email);
 
         return new Passport(
             new UserBadge($email),
-            new PasswordCredentials($request->request->get('password', '')),
+            new PasswordCredentials($plainPassword),
             [
                 new CsrfTokenBadge('authenticate', $request->request->get('_csrf_token')),
             ]
