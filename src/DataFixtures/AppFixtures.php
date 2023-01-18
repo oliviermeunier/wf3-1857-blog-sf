@@ -5,6 +5,7 @@ namespace App\DataFixtures;
 use App\Entity\Post;
 use DateTimeImmutable;
 use App\Factory\PostFactory;
+use App\Factory\CommentFactory;
 use App\Factory\CategoryFactory;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -40,6 +41,8 @@ class AppFixtures extends Fixture
 
             // Création de 10 articles
             ->createMany(10);
+
+        CommentFactory::new()->createMany(50);
 
         $manager->flush();
     }
