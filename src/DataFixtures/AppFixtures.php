@@ -36,6 +36,10 @@ class AppFixtures extends Fixture
         // $manager->persist($post);
         UserFactory::new()->createMany(10);
         UserFactory::new()->createOne(['email' => 'user@gmail.com']);
+        UserFactory::new()->create([
+            'roles' => ['ROLE_ADMIN'],
+            'email' => 'admin@gmail.com'
+        ]);
 
         CategoryFactory::new()->createMany(5);
 
