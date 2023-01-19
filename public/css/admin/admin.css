@@ -6,6 +6,12 @@ table.posts-list img {
     width: 100%;
 }
 
-body {
-    padding-top: 5rem;
+figure.post-image-thumb
+{
+    width: 150px;
+}
+
+figure.post-image-thumb img
+{
+    width: 100%;
 }

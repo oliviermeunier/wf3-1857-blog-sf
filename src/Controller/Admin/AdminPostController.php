@@ -14,12 +14,17 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class AdminPostController extends AbstractController
 {
+    public function __construct(
+        private SluggerInterface $slugger,
+        private EntityManagerInterface $manager,
+        private UploaderHelper $uploaderHelper
+    ) {
+    }
+
+
     #[Route('/admin/post/new', name: 'admin.post.new')]
     public function new(
-        Request $request,
-        SluggerInterface $slugger,
-        EntityManagerInterface $manager,
-        UploaderHelper $uploaderHelper
+        Request $request
     ): Response {
         $post = new Post();
         $form = $this->createForm(PostType::class, $post);
@@ -27,12 +32,12 @@ class AdminPostController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $post->setUser($this->getUser());
-            $post->setSlug($slugger->slug($post->getTitle()));
+            $post->setSlug($this->slugger->slug($post->getTitle()));
 
-            $uploaderHelper->uploadPostImage($post, $form->get('imageFile')->getData());
+            $this->uploaderHelper->uploadPostImage($post, $form->get('imageFile')->getData());
 
-            $manager->persist($post);
-            $manager->flush();
+            $this->manager->persist($post);
+            $this->manager->flush();
 
             $this->addFlash('success', 'Article ajouté avec succès.');
             return $this->redirectToRoute('admin.index');
@@ -42,5 +47,69 @@ class AdminPostController extends AbstractController
         return $this->render('admin/post/new.html.twig', [
             'form' => $form->createView()
         ]);
+    }
+
+    #[Route('/admin/post/{id}/edit', name: 'admin.post.edit')]
+    public function edit(
+        Post $post,
+        Request $request
+    ): Response {
+        $form = $this->createForm(PostType::class, $post);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $post->setSlug($this->slugger->slug($post->getTitle()));
+
+            $this->uploaderHelper->uploadPostImage($post, $form->get('imageFile')->getData());
+
+            $this->manager->flush();
+
+            $this->addFlash('success', 'Article ajouté avec succès.');
+            return $this->redirectToRoute('admin.index');
+        }
+
+        return $this->render('admin/post/edit.html.twig', [
+            'form' => $form->createView()
+        ]);
+    }
+
+    #[Route('/admin/post/{id}/removeImage', name: 'admin.post.removeImage')]
+    public function removeImage(Post $post)
+    {
+        // Suppression du fichier image
+        $this->uploaderHelper->removePostImageFile($post);
+
+        // Vider le champ image de l'entité
+        $post->setImage(null);
+
+        // Mise à jour de l'entité en base de données
+        $this->manager->flush();
+
+        // Message flash
+        $this->addFlash('success', 'Image supprimée.');
+
+        // Redirection vers le dashboard admin
+        return $this->redirectToRoute('admin.index');
+    }
+
+    #[Route('/admin/post/{id<\d+>}/remove/{token}', name: 'admin.post.remove')]
+    public function remove(string $token, Post $post)
+    {
+        if (!$this->isCsrfTokenValid('delete-post-' . $post->getId(), $token)) {
+            throw new \Exception('Invalid token');
+        }
+
+        // Suppression du fichier image
+        $this->uploaderHelper->removePostImageFile($post);
+
+        // Suppression de l'entité
+        $this->manager->remove($post);
+        $this->manager->flush();
+
+        // Message flash
+        $this->addFlash('success', 'Article supprimé.');
+
+        // Redirection vers le dashboard admin
+        return $this->redirectToRoute('admin.index');
     }
 }
