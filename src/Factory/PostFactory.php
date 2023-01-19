@@ -48,11 +48,11 @@ final class PostFactory extends ModelFactory
     protected function getDefaults(): array
     {
         return [
-            'author' => self::faker()->name(),
+            'user' => UserFactory::findOrCreate(['email' => 'admin@gmail.com']),
             'content' => self::faker()->text(2000),
             'createdAt' => \DateTimeImmutable::createFromMutable(self::faker()->dateTimeBetween('-3 years', 'now', 'Europe/Paris')),
             'title' => self::faker()->sentence(),
-            'image' => 'https://picsum.photos/seed/'.rand(1,1000).'/750/300',
+            'image' => 'https://picsum.photos/seed/' . rand(1, 1000) . '/750/300',
             'category' => CategoryFactory::random()
         ];
     }
@@ -63,16 +63,16 @@ final class PostFactory extends ModelFactory
     protected function initialize(): self
     {
         return $this
-                ->afterInstantiate(function(Post $post) {
-                    // On récupère le titre de l'article
-                    $title = $post->getTitle();
+            ->afterInstantiate(function (Post $post) {
+                // On récupère le titre de l'article
+                $title = $post->getTitle();
 
-                    // On sluggifie ce titre avec le slugger
-                    $slug = $this->slugger->slug($title);
+                // On sluggifie ce titre avec le slugger
+                $slug = $this->slugger->slug($title);
 
-                    // On enregistre ce slug dans le champ slug
-                    $post->setSlug($slug);
-                });
+                // On enregistre ce slug dans le champ slug
+                $post->setSlug($slug);
+            });
     }
 
     protected static function getClass(): string

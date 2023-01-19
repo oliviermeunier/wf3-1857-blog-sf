@@ -1,6 +1,10 @@
 {% extends 'admin/base.admin.html.twig' %}
 
 {% block body %}
+
+<a href="{{ path('admin.post.new') }}" class="btn btn-primary my-3">
+    <i class="fas fa-plus-square"></i> Rédiger un article
+</a>
    
 <table class="posts-list">
     {# on pourrait avoir un <thead> #}
@@ -10,11 +14,13 @@
                 <th scope="row">#{{ post.id }}</th>
                 <td>{{ post.createdAt|date("d/m/Y", "Europe/Paris") }}</td>
                 <td>{{ post.title }}</td>
-            <td>{{ post.author }}</td>
+            <td>{{ post.user.fullname }}</td>
                 <td>
-                    <figure>
-                        <img src="{{ post.image }}" alt="{{ post.title }}">
-                    </figure>
+                    {% if post.image %}
+                        <figure>
+                            <img src="{{ asset_post_image(post.image) }}" alt="{{ post.title }}">
+                        </figure>
+                    {% endif %}
                 </td>
                 <td>{{ post.category.name }}</td>
                 <td>
